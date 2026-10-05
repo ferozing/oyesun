@@ -56,7 +56,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .pop { animation: pop 420ms ease-out; }
 @media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
 
-/* Laptops and desktops: show the design 10% larger. Phones and tablets stay at 100%. */
+/* Laptops and desktops: show the design at 88% (20% smaller than the earlier 110%). Phones and tablets stay at 100%. */
 @media (min-width: 1024px) {
-  body { zoom: 1.1; }
+  body { zoom: 0.88; }
 }
