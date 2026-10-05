@@ -1,26 +1,57 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-night: #14100C;
+  --color-cream: #FFF4E2;
+  --color-sun: #FFC94A;
+  --color-orange: #FF8A3D;
+  --color-ember: #221B14;
+  --color-line: #3D3123;
+  --color-line-2: #4A3A24;
+  --color-dusk: #2A2219;
+  --color-sand: #F4E3C3;
+  --color-muted: #C9B796;
+  --color-faint: #A8977E;
+  --color-warm: #E9D9C0;
+  --color-brown: #6E5B40;
+
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html { background: var(--color-night); }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-night);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--color-sun);
+  outline-offset: 3px;
+}
+
+/* Hero sun gently rising and setting (design: top 320px +/- 30px). */
+@keyframes sun-drift {
+  from { transform: translateY(-30px); }
+  to { transform: translateY(30px); }
+}
+.sun-drift { animation: sun-drift 11.3s ease-in-out infinite alternate; }
+
+/* Language marquee, scrolling forever. The list is doubled, so -50% loops seamlessly. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee { animation: marquee 140s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sun-drift, .marquee { animation: none; }
+  *, *::before, *::after { transition: none !important; }
+}
+
+@keyframes pop { 0% { transform: scale(0.8); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.pop { animation: pop 420ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
