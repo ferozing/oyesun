@@ -55,3 +55,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 @keyframes pop { 0% { transform: scale(0.8); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
 .pop { animation: pop 420ms ease-out; }
 @media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
+
+/* Laptops and desktops: show the design 10% larger. Phones and tablets stay at 100%. */
+@media (min-width: 1024px) {
+  body { zoom: 1.1; }
+}
