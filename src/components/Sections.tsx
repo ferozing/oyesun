@@ -141,8 +141,8 @@ export function FinalCta() {
         <WaitlistJoinedCta fallback={<ReserveForm id="cta-wa" variant="cta" />} />
         <CheckSpot />
       </div>
-      <footer className="relative mx-auto mt-[clamp(80px,10vw,140px)] flex max-w-[1240px] flex-wrap justify-between gap-3 text-left text-[14px] font-semibold text-[#3A2A10]">
-        <span>oyesun · a <a href="https://fimolabs.com" className="text-night">Fimo Labs</a> product · <Link href="/privacy" className="text-night">Privacy</Link> · <Link href="/terms" className="text-night">Terms</Link></span>
+      <footer className="relative mx-auto mt-[clamp(80px,10vw,140px)] flex max-w-[1240px] flex-wrap justify-between gap-3 text-left text-[14px] font-semibold text-cream">
+        <span>oyesun · a <a href="https://fimolabs.com" className="text-cream underline underline-offset-2">Fimo Labs</a> product · <Link href="/privacy" className="text-cream underline underline-offset-2">Privacy</Link> · <Link href="/terms" className="text-cream underline underline-offset-2">Terms</Link></span>
         <span>Not a replacement for professional help. In a crisis, call your local helpline.</span>
       </footer>
     </section>
