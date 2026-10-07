@@ -70,11 +70,11 @@ export function Remembers() {
         <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-3.5">
           <div className="flex flex-col gap-2 rounded-[22px] bg-[rgba(20,16,12,0.08)] px-5 py-[18px]">
             <span className="text-[12px] font-extrabold uppercase tracking-[0.06em] text-[#6A4A00]">Monday, 11:40 pm</span>
-            <span className="text-[16px] leading-[1.45]">You: maths exam on Friday, scared hoon honestly</span>
+            <span className="text-[16px] leading-[1.45]">You: maths exam on Friday. honestly terrified</span>
           </div>
           <div className="flex flex-col gap-2.5 rounded-[22px] bg-night px-[22px] py-5 text-cream">
             <span className="text-[12px] font-extrabold uppercase tracking-[0.06em] text-sun">Friday, 4:15 pm</span>
-            <span className="text-[19px] leading-[1.45] font-semibold">Oye! Maths ho gaya? Kaisa gaya? Whatever happened, proud of you for showing up.</span>
+            <span className="text-[19px] leading-[1.45] font-semibold">Oye! Maths is done. How did it go? Whatever happened, I’m proud of you for showing up.</span>
           </div>
           <div className="flex flex-wrap gap-2 pt-1">
             {["Your people", "Your plans", "What helps you"].map((x) => (
@@ -91,6 +91,62 @@ const lockIcon = <svg width="34" height="34" viewBox="0 0 28 28" aria-hidden="tr
 const downloadIcon = <svg width="34" height="34" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 4v12M9 11l5 5l5 -5" fill="none" stroke="#FFC94A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M5 18v4h18v-4" fill="none" stroke="#FFC94A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 const heartIcon = <svg width="34" height="34" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 24s-9-5.2-9-12a5 5 0 0 1 9 -3a5 5 0 0 1 9 3c0 6.8 -9 12 -9 12z" fill="#14100C" /></svg>;
 const cardTitle = "font-display text-[28px] leading-[1.05] font-extrabold tracking-[-0.03em]";
+
+const tick = <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 shrink-0"><circle cx="10" cy="10" r="9" fill="#FFC94A" /><path d="M6 10.5l2.6 2.6L14 7.6" fill="none" stroke="#14100C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+const cross = <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 shrink-0"><circle cx="10" cy="10" r="9" fill="none" stroke="#A8977E" strokeWidth="1.8" /><path d="M7 7l6 6M13 7l-6 6" fill="none" stroke="#A8977E" strokeWidth="1.8" strokeLinecap="round" /></svg>;
+
+const theirs = [
+  "An account in your name, with your email or phone",
+  "Everything personal you typed, saved against that account",
+  "A profile that gets better at knowing exactly who you are",
+];
+
+const ours = [
+  "A username you made up. That is the whole sign up",
+  "No email, no phone, no real name, ever asked",
+  "Nothing to link what you said back to you, because we never asked who you are",
+];
+
+export function NotEvenUs() {
+  return (
+    <section className="px-[clamp(20px,4.5vw,64px)] pb-[clamp(80px,10vw,140px)]">
+      <div className="mx-auto flex max-w-[1240px] flex-col gap-10">
+        <div className="flex max-w-[860px] flex-col gap-[18px]">
+          <span className="text-[14px] font-bold uppercase tracking-[0.08em] text-sun">The part nobody mentions</span>
+          <h2 className="font-display text-[clamp(44px,5.6vw,84px)] leading-[0.95] font-extrabold tracking-[-0.045em]">
+            You tell it everything. <span className="text-sun">It knows exactly who you are.</span>
+          </h2>
+          <p className="max-w-[620px] text-[18px] leading-[1.55] text-muted">
+            Plenty of people already talk to an AI about the things they tell nobody else. That chat
+            sits inside an account with your name on it. Oyesun is built the other way round.
+          </p>
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-4">
+          <div className="flex flex-col gap-5 rounded-[28px] border border-line-2 bg-ember p-[30px]">
+            <span className="text-[14px] font-bold uppercase tracking-[0.08em] text-faint">Signing in anywhere else</span>
+            <ul className="flex flex-col gap-3.5">
+              {theirs.map((t) => (
+                <li key={t} className="flex gap-3 text-[16.5px] leading-[1.5] text-warm">{cross}<span>{t}</span></li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex flex-col gap-5 rounded-[28px] bg-cream p-[30px] text-night">
+            <span className="text-[14px] font-bold uppercase tracking-[0.08em] text-[#8C7A5E]">Signing in here</span>
+            <ul className="flex flex-col gap-3.5">
+              {ours.map((t) => (
+                <li key={t} className="flex gap-3 text-[16.5px] leading-[1.5] text-[#4A3D28]">{tick}<span>{t}</span></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p className="max-w-[620px] text-[17px] leading-[1.55] text-faint">
+          It is hard to be honest with something that knows your full name. So we made sure it
+          doesn&apos;t.
+        </p>
+      </div>
+    </section>
+  );
+}
 
 export function BetweenYouTwo() {
   return (
@@ -109,15 +165,15 @@ export function BetweenYouTwo() {
             <span className={cardTitle}>Only a username</span>
             <span className="text-[16px] leading-[1.55] text-[#4A3D28]">No phone number. No email. No real name. Sign up in five seconds, stay anonymous forever.</span>
           </div>
-          <div className="flex min-h-[250px] flex-col gap-3.5 rounded-[28px] border border-line p-[30px]">
+          <div className="flex min-h-[250px] flex-col gap-3.5 rounded-[28px] border border-line-2 bg-ember p-[30px]">
             {lockIcon}
             <span className={cardTitle}>Every chat encrypted</span>
-            <span className="text-[16px] leading-[1.55] text-muted">Locked while it travels and while it&apos;s stored. Never sold, never used for ads.</span>
+            <span className="text-[16px] leading-[1.55] text-warm">Locked while it travels and while it&apos;s stored. Never sold, never used for ads.</span>
           </div>
-          <div className="flex min-h-[250px] flex-col gap-3.5 rounded-[28px] border border-line p-[30px]">
+          <div className="flex min-h-[250px] flex-col gap-3.5 rounded-[28px] border border-line-2 bg-ember p-[30px]">
             {downloadIcon}
             <span className={cardTitle}>Export or delete, anytime</span>
-            <span className="text-[16px] leading-[1.55] text-muted">Download everything you&apos;ve said. Or ask us to delete it all, and it&apos;s gone. Your story, your call.</span>
+            <span className="text-[16px] leading-[1.55] text-warm">Download everything you&apos;ve said. Or ask us to delete it all, and it&apos;s gone. Your story, your call.</span>
           </div>
           <div className="flex min-h-[250px] flex-col gap-3.5 rounded-[28px] bg-orange p-[30px] text-night">
             {heartIcon}

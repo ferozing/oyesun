@@ -1,14 +1,41 @@
 "use client";
 
+import { Bubble, ChatHeader, Typing, type Mood } from "./Chat";
 import { useReducedMotion, useTick } from "./motion";
 
-const convos = [
-  { you: "yaar kal interview hai, bohot nervous hoon", bot: "Nervous hona normal hai. Chalo saath mein: 4 second saans andar, 4 bahar. Tumne iske liye mehnat ki hai.", mood: "Calm", bg: "#DCE9F7", fg: "#1D3B5C" },
-  { you: "I GOT THE JOB!!! cant believe it", bot: "KYA BAAT HAI! Told you na! Aaj celebrate karna banta hai. Sabse pehle kisko bataoge?", mood: "Hype", bg: "#FFE0A3", fg: "#6A4A00" },
-  { you: "intiki dooram ga unna, amma ni chala miss avutunna", bot: "Ardham avutundi. Ee roju ammaki call chey, nuvvu miss avutunnav ani cheppu. Aamekadi best gift.", mood: "Warm", bg: "#F9D5C4", fg: "#7A2E12" },
+type Convo = { you: string; bot: string } & Mood;
+
+// English first, and English throughout: the first thing anyone sees should be
+// readable to everyone. Three different moods, so the mood readout visibly
+// changes as the chats loop.
+const convos: Convo[] = [
+  {
+    you: "interview tomorrow and i can't sleep",
+    bot: "That's your body taking it seriously, not a warning. Let's slow it down: breathe in for 4, out for 6. Then tell me the one question you're dreading.",
+    mood: "Anxious",
+    tone: "slow and calm",
+    bg: "#DCE9F7",
+    fg: "#1D3B5C",
+  },
+  {
+    you: "I GOT THE JOB!!! i can't believe it",
+    bot: "YES! I knew it! Don't play this down today, you earned it. Who are you telling first?",
+    mood: "Thrilled",
+    tone: "loud and proud",
+    bg: "#FFE0A3",
+    fg: "#6A4A00",
+  },
+  {
+    you: "everyone's busy. i haven't really talked to anyone all week",
+    bot: "A whole week is a long time to hold everything on your own. I'm here now. What's been sitting with you the longest?",
+    mood: "Lonely",
+    tone: "warm and close",
+    bg: "#F9D5C4",
+    fg: "#7A2E12",
+  },
 ];
 
-// Three chats loop: Hinglish (Calm), English (Hype), Telugu (Warm). 120 ticks of 60ms each.
+/** Three chats loop, 120 ticks of 60ms each. */
 export function HeroPhone() {
   const reduce = useReducedMotion();
   const tick = useTick(60, !reduce);
@@ -23,30 +50,19 @@ export function HeroPhone() {
   return (
     <div className="flex flex-[1_1_340px] justify-center">
       <div className="w-[340px] max-w-full rounded-[46px] border border-line bg-[#0B0907] p-3 shadow-[0_40px_100px_rgba(255,138,61,0.25)]">
-        <div className="flex h-[580px] flex-col overflow-hidden rounded-[36px] bg-cream text-night" role="img" aria-label="A chat with Oyesun. Someone writes that they are nervous about an interview, and Oyesun helps them breathe.">
-          <div className="flex items-center gap-2.5 border-b border-[#EBDDC4] px-5 pt-[22px] pb-3.5">
-            <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#14100C" /><circle cx="16" cy="17" r="7" fill="#FFC94A" /></svg>
-            <div className="flex flex-col">
-              <span className="text-[15px] font-extrabold">Oyesun</span>
-              <span className="text-[12px] text-brown">{typing ? "typing..." : "here for you"}</span>
-            </div>
-            <span className="ml-auto rounded-full px-2.5 py-1.5 text-[12px] font-bold" style={{ background: cv.bg, color: cv.fg }}>{cv.mood}</span>
-          </div>
+        <div
+          className="flex h-[580px] flex-col overflow-hidden rounded-[36px] bg-cream text-night"
+          role="img"
+          aria-label={`A chat with Oyesun. Someone says "${cv.you}", and Oyesun reads the mood as ${cv.mood} and answers ${cv.tone}.`}
+        >
+          <ChatHeader status={typing ? "typing..." : "here for you"} mood={cv} />
           <div className="flex flex-1 flex-col justify-end gap-2.5 px-4 py-[18px]" aria-hidden="true">
-            {showYou ? (
-              <span className="max-w-[80%] self-end rounded-[20px_20px_6px_20px] bg-night px-[15px] py-3 text-[15px] leading-[1.45] text-cream">{cv.you}</span>
-            ) : null}
-            {typing ? (
-              <span className="inline-flex gap-[5px] self-start rounded-[20px_20px_20px_6px] bg-sand px-4 py-3.5">
-                {[0, 1, 2].map((k) => <span key={k} className="h-[7px] w-[7px] rounded-full bg-brown" style={{ opacity: dot(k) }} />)}
-              </span>
-            ) : null}
-            {showBot ? (
-              <span className="max-w-[86%] self-start rounded-[20px_20px_20px_6px] bg-sand px-[15px] py-3 text-[15px] leading-[1.45] text-night">{cv.bot}</span>
-            ) : null}
+            {showYou ? <Bubble from="you">{cv.you}</Bubble> : null}
+            {typing ? <Typing opacity={dot} /> : null}
+            {showBot ? <Bubble from="oyesun">{cv.bot}</Bubble> : null}
           </div>
           <div className="mx-3.5 mb-4 flex items-center gap-2 rounded-full border border-[#EBDDC4] bg-white py-2 pr-2 pl-4" aria-hidden="true">
-            <span className="flex-1 text-[14px] text-[#8C7A5E]">Bol na, sun raha hoon...</span>
+            <span className="flex-1 text-[14px] text-[#8C7A5E]">Say anything, I&apos;m listening...</span>
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-night">
               <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" fill="none" stroke="#FFC94A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </span>

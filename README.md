@@ -29,3 +29,9 @@ Next.js (App Router, TypeScript), Tailwind, deployed on Vercel. Design reference
 Text lives in `src/app/privacy/page.tsx` and `src/app/terms/page.tsx`. Update the privacy page before the chat product opens.
 
 Until the Supabase env vars are set, the API routes answer "The waitlist opens very soon" instead of erroring.
+
+## Pending migration
+
+`supabase/migrations/2026-10-07-line-offset-and-scoring.sql` has not been applied
+yet. Run it once in the Supabase SQL editor. Until then the site works, but the
+line does not start at 100 and wrong answers cost nothing.

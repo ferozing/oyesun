@@ -13,7 +13,7 @@ create table if not exists public.waitlist (
   -- Today's Read the Room game, so answers can be checked once each on the server.
   game_qids       integer[] not null default '{}',
   game_answered   integer[] not null default '{}',
-  game_jumps      integer not null default 0 check (game_jumps between 0 and 15)
+  game_jumps      integer not null default 0 check (game_jumps between 0 and 10)
 );
 
 create index if not exists waitlist_line_idx
@@ -32,26 +32,22 @@ grant usage, select on sequence public.waitlist_created_seq_seq to service_role;
 create or replace function public.waitlist_today() returns date
 language sql stable as $$ select (now() at time zone 'Asia/Kolkata')::date $$;
 
--- Position = 1 + waiting users whose (created_seq - jumps) is lower than mine.
--- Ties go to the earlier created_seq.
+-- Where the line starts counting: the first person to reserve is 101.
+create or replace function public.waitlist_offset() returns integer
+language sql immutable as $$ select 100 $$;
+
+-- Your number in the line: the order you arrived, offset by the starting
+-- number, minus the spots you have jumped. Never below 1.
 create or replace function public.waitlist_spot(p_username text)
 returns table (out_position bigint, out_ahead bigint, out_total bigint, out_status text)
 language sql stable as $$
   with me as (select * from public.waitlist where username = p_username)
   select
-    case when me.status = 'waiting' then 1 + (
-      select count(*) from public.waitlist o
-      where o.status = 'waiting'
-        and ((o.created_seq - o.jumps) < (me.created_seq - me.jumps)
-          or ((o.created_seq - o.jumps) = (me.created_seq - me.jumps) and o.created_seq < me.created_seq))
-    ) end,
-    case when me.status = 'waiting' then (
-      select count(*) from public.waitlist o
-      where o.status = 'waiting'
-        and ((o.created_seq - o.jumps) < (me.created_seq - me.jumps)
-          or ((o.created_seq - o.jumps) = (me.created_seq - me.jumps) and o.created_seq < me.created_seq))
-    ) end,
-    (select count(*) from public.waitlist where status = 'waiting'),
+    case when me.status = 'waiting'
+      then greatest(1, (me.created_seq + public.waitlist_offset()) - me.jumps) end,
+    case when me.status = 'waiting'
+      then greatest(0, (me.created_seq + public.waitlist_offset()) - me.jumps - 1) end,
+    public.waitlist_offset() + (select count(*) from public.waitlist where status = 'waiting'),
     me.status
   from me
 $$;
@@ -80,8 +76,8 @@ begin
   return query select p_qids, '{}'::integer[], 0, false, r.status;
 end $$;
 
--- Record one answer. The API checks right or wrong and passes the gain (5 or 2).
--- Each question counts once, only for today's game, and at most 15 jumps a day.
+-- Record one answer. The API decides the gain (+5 right, +2 close, -2 wrong);
+-- this enforces the daily ceiling of 10 and the floor at your starting spot.
 create or replace function public.waitlist_answer(p_username text, p_qid integer, p_gain integer)
 returns table (out_ok boolean, out_reason text, out_gained integer)
 language plpgsql as $$
@@ -96,9 +92,17 @@ begin
     return query select false, 'no_game', 0; return;
   end if;
   if p_qid = any (r.game_answered) then return query select false, 'already_answered', 0; return; end if;
-  g := greatest(0, least(p_gain, 5, 15 - r.game_jumps));
+
+  if p_gain > 0 then
+    g := least(p_gain, 5, greatest(0, 10 - r.game_jumps));
+  else
+    g := greatest(p_gain, -2, -r.jumps);
+  end if;
+
   update public.waitlist
-     set jumps = jumps + g, game_jumps = game_jumps + g, game_answered = array_append(game_answered, p_qid)
+     set jumps = jumps + g,
+         game_jumps = greatest(0, game_jumps + g),
+         game_answered = array_append(game_answered, p_qid)
    where username = p_username;
   return query select true, null::text, g;
 end $$;
@@ -110,9 +114,9 @@ returns void language sql as $$
   update public.waitlist set status = 'invited', notify_contact = null where username = p_username
 $$;
 
-revoke all on function public.waitlist_today(), public.waitlist_spot(text),
+revoke all on function public.waitlist_today(), public.waitlist_offset(), public.waitlist_spot(text),
   public.waitlist_start_game(text, integer[]), public.waitlist_answer(text, integer, integer),
   public.waitlist_invite(text) from public, anon, authenticated;
-grant execute on function public.waitlist_today(), public.waitlist_spot(text),
+grant execute on function public.waitlist_today(), public.waitlist_offset(), public.waitlist_spot(text),
   public.waitlist_start_game(text, integer[]), public.waitlist_answer(text, integer, integer)
   to service_role;

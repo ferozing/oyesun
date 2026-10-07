@@ -1,5 +1,5 @@
 import { ReadsTheRoom } from "@/components/ReadsTheRoom";
-import { BetweenYouTwo, FinalCta, Hero, LanguageMarquee, Remembers } from "@/components/Sections";
+import { BetweenYouTwo, FinalCta, Hero, LanguageMarquee, NotEvenUs, Remembers } from "@/components/Sections";
 import { WaitlistProvider } from "@/components/Waitlist";
 
 export default function Home() {
@@ -10,6 +10,7 @@ export default function Home() {
         <LanguageMarquee />
         <ReadsTheRoom />
         <Remembers />
+        <NotEvenUs />
         <BetweenYouTwo />
         <FinalCta />
       </main>

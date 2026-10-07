@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { api } from "./api";
+import { CheckSpot } from "./CheckSpot";
 
 type Waitlist = {
   reserved: string | null;
@@ -101,7 +102,7 @@ export function ReserveForm({ id, variant }: { id: string; variant: "hero" | "ct
 }
 
 export function HeroJoined() {
-  const { notified, notify } = useWaitlist();
+  const { reserved, notified, notify } = useWaitlist();
   const [contact, setContact] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,8 +119,9 @@ export function HeroJoined() {
     <div className="flex flex-col gap-3.5 rounded-[26px] border border-sun bg-ember px-[22px] py-5">
       <div className="flex items-center gap-3 font-bold">
         <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#FFC94A" /><path d="M6 10.5l2.6 2.6L14 7.6" fill="none" stroke="#14100C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        Spot reserved. You&apos;re in line.
+        Spot reserved, @{reserved}.
       </div>
+      {reserved ? <CheckSpot auto={reserved} /> : null}
       <span className="text-[14px] leading-[1.5] text-muted">Come back anytime and type your username to check if you&apos;re in.</span>
       {notified ? (
         <span className="text-[14px] font-bold text-sun">Done. One message when you&apos;re in, then we forget it.</span>

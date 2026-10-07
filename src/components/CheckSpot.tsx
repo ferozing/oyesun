@@ -6,7 +6,7 @@ import { useReducedMotion } from "./motion";
 import { cleanName, useWaitlist } from "./Waitlist";
 
 type GameStart = { done: boolean; jumpsToday: number; answered: number[]; questions: PublicQuestion[] };
-type AnswerResult = { correct: boolean; answer: number; gained: number; position: number | null; ahead: number | null; total: number; status: "waiting" | "invited" };
+type AnswerResult = { correct: boolean; verdict: "right" | "close" | "wrong"; answer: number; close: number; gained: number; position: number | null; ahead: number | null; total: number; status: "waiting" | "invited" };
 type Game =
   | { phase: "idle" }
   | { phase: "loading" }
@@ -17,10 +17,10 @@ type Game =
 const srOnly = "absolute h-px w-px overflow-hidden [clip:rect(0_0_0_0)]";
 const fmt = (n: number) => n.toLocaleString("en-IN");
 
-export function CheckSpot() {
+export function CheckSpot({ auto }: { auto?: string } = {}) {
   const { reserved } = useWaitlist();
   const reduce = useReducedMotion();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(Boolean(auto));
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +53,20 @@ export function CheckSpot() {
     setOpen(true);
     if (reserved && !name) setName(reserved);
   };
+
+  // Auto mode: we already know the username, so show the spot without asking.
+  useEffect(() => {
+    if (!auto) return;
+    let stale = false;
+    (async () => {
+      const res = await api<Spot>(`/api/spot?u=${encodeURIComponent(auto)}`);
+      if (stale) return;
+      if (!res.ok) { setError(res.message); return; }
+      setSpot(res.data);
+      setShown(res.data.position ? res.data.position + Math.max(5, Math.round(res.data.position * 0.1)) : 0);
+    })();
+    return () => { stale = true; };
+  }, [auto]);
 
   const check = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,9 +129,11 @@ export function CheckSpot() {
     : 100;
 
   return (
-    <div className="flex w-full max-w-[520px] flex-col gap-3 rounded-[28px] border border-line bg-night p-[18px] text-left">
-      <span className="pl-1.5 text-[15px] font-bold text-cream">Check your spot</span>
-      <form onSubmit={check} className="flex flex-wrap gap-2 rounded-full bg-ember p-[5px]">
+    <div className={auto
+      ? "flex w-full flex-col gap-3 text-left"
+      : "flex w-full max-w-[520px] flex-col gap-3 rounded-[28px] border border-line bg-night p-[18px] text-left"}>
+      {auto ? null : <span className="pl-1.5 text-[15px] font-bold text-cream">Check your spot</span>}
+      <form onSubmit={check} hidden={Boolean(auto)} className="flex flex-wrap gap-2 rounded-full bg-ember p-[5px]">
         <label htmlFor="check-user" className={srOnly}>Your username</label>
         <span className="self-center pl-3.5 font-bold text-faint">@</span>
         <input
@@ -166,7 +182,7 @@ export function CheckSpot() {
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] bg-night px-[18px] py-4 text-cream">
                   <div className="flex flex-[1_1_220px] flex-col gap-1">
                     <span className="font-display text-[22px] font-extrabold tracking-[-0.02em]">Want to jump the line?</span>
-                    <span className="text-[14px] text-muted">Play Read the Room. 3 quick rounds, up to 15 spots. 20 seconds.</span>
+                    <span className="text-[14px] text-muted">Play Read the Room. 3 rounds. Right +5, close +2, wrong −2. Up to 10 spots a day.</span>
                   </div>
                   <button type="button" onClick={startGame} disabled={game.phase === "loading"} className="cursor-pointer rounded-full border-0 bg-sun px-5 py-[13px] text-[15px] font-extrabold text-night disabled:opacity-70">
                     {game.phase === "loading" ? "Loading..." : "Play"}
@@ -178,8 +194,14 @@ export function CheckSpot() {
 
               {game.phase === "done" ? (
                 <div className="flex flex-col gap-1.5 rounded-[18px] bg-sun p-[18px]">
-                  <span className="font-display text-[26px] font-extrabold tracking-[-0.02em]">You jumped {game.jumps} spots. Nice read.</span>
-                  <span className="text-[14px] text-[#3D2D0A]">You clearly get people. Oyesun will like you. New round unlocks tomorrow.</span>
+                  <span className="font-display text-[26px] font-extrabold tracking-[-0.02em]">
+                    {game.jumps > 0 ? `You jumped ${game.jumps} spots. Nice read.` : "No jump today."}
+                  </span>
+                  <span className="text-[14px] text-[#3D2D0A]">
+                    {game.jumps > 0
+                      ? "You clearly get people. Oyesun will like you. New round unlocks tomorrow."
+                      : "Reading a room is harder than it looks. New round unlocks tomorrow."}
+                  </span>
                 </div>
               ) : null}
 
@@ -243,8 +265,17 @@ function Round({ game, onAnswer, onNext }: {
       </div>
       {answered ? (
         <div className="flex flex-wrap items-center justify-between gap-2.5">
-          <span className="text-[15px] font-bold" style={{ color: r.correct ? "#7BE0A3" : "#FFC94A" }}>
-            {r.correct ? `Spot on! +${r.gained} spots` : `Close! They felt ${q.opts[r.answer].toLowerCase()}. Still +${r.gained}`}
+          <span
+            className="text-[15px] font-bold"
+            style={{ color: r.verdict === "right" ? "#7BE0A3" : r.verdict === "close" ? "#FFC94A" : "#FF8A3D" }}
+          >
+            {r.verdict === "right"
+              ? `Spot on! +${r.gained} spots`
+              : r.verdict === "close"
+                ? `Close. They felt ${q.opts[r.answer].toLowerCase()}. +${r.gained}`
+                : r.gained < 0
+                  ? `Not quite. They felt ${q.opts[r.answer].toLowerCase()}. ${r.gained} spots`
+                  : `Not quite. They felt ${q.opts[r.answer].toLowerCase()}.`}
           </span>
           <button type="button" onClick={onNext} className="cursor-pointer rounded-full border-0 bg-sun px-[18px] py-[11px] text-[14px] font-extrabold text-night">
             {last ? "See my spot" : "Next"}
