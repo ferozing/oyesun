@@ -30,8 +30,8 @@ Text lives in `src/app/privacy/page.tsx` and `src/app/terms/page.tsx`. Update th
 
 Until the Supabase env vars are set, the API routes answer "The waitlist opens very soon" instead of erroring.
 
-## Pending migration
+## Migrations
 
-`supabase/migrations/2026-10-07-line-offset-and-scoring.sql` has not been applied
-yet. Run it once in the Supabase SQL editor. Until then the site works, but the
-line does not start at 100 and wrong answers cost nothing.
+`supabase/migrations/2026-10-07-line-offset-and-scoring.sql` was applied on
+11 October 2026: the line starts at 100, and Read the Room scores +5 right,
++2 close, -2 wrong with a ceiling of 10 spots a day.

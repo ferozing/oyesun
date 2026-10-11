@@ -6,11 +6,13 @@
 --   2. Read the Room now costs you something: +5 right, +2 close, -2 wrong,
 --      and at most 10 spots a day. You can never fall behind where you started.
 
--- Today's game can move you at most 10 spots, not 15.
+-- Today's game can move you at most 10 spots, not 15. Rows earned under the old
+-- ceiling have to be brought down before the new constraint goes on, or adding
+-- it fails on the existing data.
 alter table public.waitlist drop constraint if exists waitlist_game_jumps_check;
+update public.waitlist set game_jumps = 10 where game_jumps > 10;
 alter table public.waitlist add constraint waitlist_game_jumps_check
   check (game_jumps between 0 and 10);
-update public.waitlist set game_jumps = 10 where game_jumps > 10;
 
 -- Where the line starts counting.
 create or replace function public.waitlist_offset() returns integer
