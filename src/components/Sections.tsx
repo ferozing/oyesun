@@ -19,7 +19,7 @@ export function Hero() {
       <div className="relative mx-auto max-w-[1240px]">
         <nav aria-label="Main" className="flex flex-wrap items-center justify-between gap-3 py-6">
           <Link href="#top" className="flex min-h-11 items-center gap-2.5 text-cream no-underline">
-            <SunLogo />
+            <SunLogo decorative />
             <span className="font-display text-[24px] font-extrabold tracking-[-0.03em]">oyesun</span>
           </Link>
           <div className="flex items-center gap-1.5">
@@ -32,6 +32,7 @@ export function Hero() {
 
         <div id="top" className="flex flex-wrap items-center gap-[clamp(40px,6vw,80px)] pt-[clamp(32px,6vw,80px)]">
           <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-[26px]">
+            <SunLogo size={96} />
             <span className="inline-flex items-center gap-2 self-start rounded-full border border-line-2 bg-[rgba(255,201,74,0.06)] px-3.5 py-2 text-[14px] font-semibold text-sun">
               <span className="inline-block h-2 w-2 rounded-full bg-sun" />Invite only · Letting people in a few at a time
             </span>
@@ -203,7 +204,10 @@ export function FinalCta() {
         <CheckSpot />
       </div>
       <footer className="relative mx-auto mt-[clamp(80px,10vw,140px)] flex max-w-[1240px] flex-wrap justify-between gap-3 text-left text-[14px] font-semibold text-cream">
-        <span>oyesun · a <a href="https://fimolabs.com" className="text-cream underline underline-offset-2">Fimo Labs</a> product · <Link href="/privacy" className="text-cream underline underline-offset-2">Privacy</Link> · <Link href="/terms" className="text-cream underline underline-offset-2">Terms</Link></span>
+        <span className="inline-flex items-center gap-2.5">
+          <SunLogo size={24} decorative />
+          <span>oyesun · a <a href="https://fimolabs.com" className="text-cream underline underline-offset-2">Fimo Labs</a> product · <Link href="/privacy" className="text-cream underline underline-offset-2">Privacy</Link> · <Link href="/terms" className="text-cream underline underline-offset-2">Terms</Link></span>
+        </span>
         <span>Not a replacement for professional help. In a crisis, call your local helpline.</span>
       </footer>
     </section>
