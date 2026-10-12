@@ -115,7 +115,12 @@ export function LineStatus({ spot, onSpot }: { spot: Spot; onSpot: (s: Spot) => 
       <div className="h-2.5 overflow-hidden rounded-full bg-[#EBDDC4]">
         <div className="h-full rounded-full bg-orange transition-[width] duration-300" style={{ width: `${barPct}%` }} />
       </div>
-      <span className="text-[14px] text-brown">{fmt(Math.max(0, displayed - 1))} people ahead of you. Real usernames, real line.</span>
+      {/* Deliberately not "N people ahead of you". The number is your arrival
+          place offset by where the line starts, so it is genuinely yours, but
+          it is not a count of people and saying so next to "real line" was the
+          one claim on the site that wasn't true. This also sets the right
+          expectation: the number not moving on its own is the design. */}
+      <span className="text-[14px] text-brown">Your place in the line. Read the Room is the only thing that moves it.</span>
 
       {game.phase === "idle" || game.phase === "loading" ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] bg-night px-[18px] py-4 text-cream">
