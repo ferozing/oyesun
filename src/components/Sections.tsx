@@ -22,7 +22,12 @@ export function Hero() {
             <SunLogo />
             <span className="font-display text-[24px] font-extrabold tracking-[-0.03em]">oyesun</span>
           </Link>
-          <a href="#waitlist" className="rounded-full bg-cream px-5 py-[13px] text-[15px] font-bold text-night no-underline">Get early access</a>
+          <div className="flex items-center gap-1.5">
+            {/* The people who already have an account need a door too, and it
+                is the one thing the landing page never offered. */}
+            <Link href="/login" className="rounded-full px-4 py-[13px] text-[15px] font-bold text-cream no-underline">Log in</Link>
+            <a href="#waitlist" className="rounded-full bg-cream px-5 py-[13px] text-[15px] font-bold text-night no-underline">Get early access</a>
+          </div>
         </nav>
 
         <div id="top" className="flex flex-wrap items-center gap-[clamp(40px,6vw,80px)] pt-[clamp(32px,6vw,80px)]">
