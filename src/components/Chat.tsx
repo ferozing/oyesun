@@ -1,3 +1,5 @@
+import { SunLogo } from "./SunLogo";
+
 /**
  * The pieces every chat on the page shares: the Oyesun avatar, the header and
  * the mood readout. Both the hero phone and the "reads the room" card use
@@ -15,15 +17,9 @@ export type Mood = {
 };
 
 export function OyesunAvatar({ size = 34 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
-      <circle cx="16" cy="16" r="16" fill="#14100C" />
-      <circle cx="16" cy="17" r="7" fill="#FFC94A" />
-      <g stroke="#FFC94A" strokeWidth="2" strokeLinecap="round">
-        <path d="M16 3.5v2.5M26.5 8.5l-1.8 1.8M5.5 8.5l1.8 1.8" />
-      </g>
-    </svg>
-  );
+  // The brand sun, same asset as the nav and hero. It sits on the chat
+  // header's cream, so the gold primary is the one that belongs here.
+  return <SunLogo size={size} decorative />;
 }
 
 /**
