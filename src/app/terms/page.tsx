@@ -6,11 +6,11 @@ export const metadata: Metadata = { title: "Terms" };
 export default function TermsPage() {
   return (
     <LegalPage title="Terms">
-      <p>Last updated 6 October 2026</p>
+      <p>Last updated 27 November 2026</p>
       <p>These terms apply when you use this website and the Oyesun waitlist, run by Fimo Labs. By reserving a username, you agree to them.</p>
 
-      <h2>Who can join</h2>
-      <p>You need to be 18 or older, or have permission from a parent or guardian to join.</p>
+      <h2>Who can create an account</h2>
+      <p>You need to be 18 or older to create an Oyesun account. You confirm your eligibility at signup.</p>
 
       <h2>The waitlist</h2>
       <ul>

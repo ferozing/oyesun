@@ -1,6 +1,7 @@
 import { callApp, appConfigured } from "@/lib/appApi";
 import { json, readJson, tooMany, notReady } from "@/lib/http";
 import { rateLimited } from "@/lib/ratelimit";
+import { validateSignupProfile } from "@/lib/signupProfile";
 import { normalizeUsername, usernameProblem } from "@/lib/username";
 
 // Signup with an invite code: someone a current user invited, or one of the
@@ -12,6 +13,9 @@ export async function POST(req: Request) {
   if (rateLimited(req, "signupcode", 6)) return tooMany();
 
   const body = await readJson(req);
+  const profile = validateSignupProfile(body);
+  if (!profile.ok) return json({ error: "invalid", message: profile.message }, 400);
+
   const username = normalizeUsername(body.username);
   const password = typeof body.password === "string" ? body.password : "";
   const code = typeof body.code === "string" ? body.code.trim() : "";
@@ -25,7 +29,7 @@ export async function POST(req: Request) {
   if (!code) return json({ error: "invalid", message: "Add your invite code." }, 400);
 
   const created = await callApp<{ custom_token: string }>("/auth/signup", {
-    body: { username, password, invite_code: code, email: email || null },
+    body: { username, password, invite_code: code, email: email || null, ...profile.data },
   });
 
   if (!created.ok) {

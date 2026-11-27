@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useId, useState } from "react";
+import { signupGenders } from "@/lib/signupProfile";
 import { api, type Spot } from "./api";
 import { enterApp } from "./handoff";
 import { LineStatus, fmt, srOnly } from "./Line";
@@ -188,9 +189,7 @@ function Ask({ name, setName, busy, error, onSubmit, onCode }: {
   );
 }
 
-// The moment the whole waitlist exists for. Nothing to paste, nothing to find
-// in an inbox: being through the line is itself the permission, so all that is
-// left is choosing a password.
+// An approved waitlist username can create an account without an invite code.
 function Approved({ username }: { username: string }) {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -198,16 +197,19 @@ function Approved({ username }: { username: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (busy) return;
     if (password.length < 8) return setError("Pick a password of at least 8 characters.");
+    const form = new FormData(e.currentTarget);
     setBusy(true);
     setError(null);
     const res = await api<{ custom_token: string }>("/api/auth/signup", {
       username,
       password,
       email: email.trim() || undefined,
+      age_confirmed: form.has("age_confirmed"),
+      gender: form.get("gender") || undefined,
     });
     if (!res.ok) {
       setBusy(false);
@@ -220,7 +222,7 @@ function Approved({ username }: { username: string }) {
     <Card>
       <span className="text-[13px] font-extrabold uppercase tracking-[0.06em] text-brown">@{username} · you&apos;re through</span>
       <span className={h1}>You&apos;re in.</span>
-      <p className="text-[15px] leading-[1.55] text-brown">Set a password and Oyesun is yours. There&apos;s nothing else to enter.</p>
+      <p className="text-[15px] leading-[1.55] text-brown">Set a password and confirm your age to finish signing up.</p>
 
       <form onSubmit={submit} className="mt-1 flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
@@ -242,6 +244,7 @@ function Approved({ username }: { username: string }) {
           </div>
         </div>
 
+        <SignupProfileFields labelClass="text-brown" />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="su-email" className="pl-1 text-[14px] font-bold text-brown">Recovery email (optional)</label>
           <input
@@ -280,13 +283,14 @@ function WithCode({ onBack }: { onBack: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (busy) return;
     const u = cleanName(username);
     if (!u) return setError("Pick a username.");
     if (password.length < 8) return setError("Pick a password of at least 8 characters.");
     if (!code.trim()) return setError("Add your invite code.");
+    const form = new FormData(e.currentTarget);
     setBusy(true);
     setError(null);
     const res = await api<{ custom_token: string }>("/api/auth/signup-code", {
@@ -294,6 +298,8 @@ function WithCode({ onBack }: { onBack: () => void }) {
       password,
       code: code.trim(),
       email: email.trim() || undefined,
+      age_confirmed: form.has("age_confirmed"),
+      gender: form.get("gender") || undefined,
     });
     if (!res.ok) {
       setBusy(false);
@@ -321,6 +327,7 @@ function WithCode({ onBack }: { onBack: () => void }) {
           <label htmlFor="code-code" className="pl-1 text-[14px] font-bold text-muted">Invite code</label>
           <input id="code-code" type="text" value={code} onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(null); }} placeholder="the code you were given" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={32} className={`${input} tracking-[0.08em]`} />
         </div>
+        <SignupProfileFields labelClass="text-muted" />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="code-email" className="pl-1 text-[14px] font-bold text-muted">Recovery email (optional)</label>
           <input id="code-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(null); }} placeholder="only used to reset a lost password" autoComplete="email" className={input} />
@@ -331,6 +338,38 @@ function WithCode({ onBack }: { onBack: () => void }) {
         {error ? <p role="alert" className="px-1 text-[14px] font-semibold text-orange">{error}</p> : null}
       </form>
       <Back onClick={onBack} label="I'm on the waitlist instead" />
+    </>
+  );
+}
+
+function SignupProfileFields({ labelClass }: { labelClass: string }) {
+  const genderId = useId();
+  return (
+    <>
+      <label className={`flex min-h-11 cursor-pointer items-center gap-3 pl-1 text-[14px] font-bold ${labelClass}`}>
+        <input type="checkbox" name="age_confirmed" required className="size-5 shrink-0 accent-sun" />
+        I&apos;m 18 or older
+      </label>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={genderId} className={`pl-1 text-[14px] font-bold ${labelClass}`}>
+          Gender (optional)
+        </label>
+        <select
+          id={genderId}
+          name="gender"
+          aria-describedby={`${genderId}-hint`}
+          defaultValue=""
+          className={`${input} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun`}
+        >
+          <option value="">Select if you&apos;d like</option>
+          {Object.entries(signupGenders).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <span id={`${genderId}-hint`} className={`pl-1 text-[13px] ${labelClass}`}>
+          Helps us understand who&apos;s joining the beta.
+        </span>
+      </div>
     </>
   );
 }

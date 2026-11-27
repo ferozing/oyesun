@@ -1,6 +1,7 @@
 import { callApp, bridgeConfigured } from "@/lib/appApi";
 import { json, readJson, serverError, tooMany, notReady } from "@/lib/http";
 import { rateLimited } from "@/lib/ratelimit";
+import { validateSignupProfile } from "@/lib/signupProfile";
 import { db, dbConfigured } from "@/lib/supabase";
 import { normalizeUsername, usernameProblem } from "@/lib/username";
 
@@ -12,6 +13,9 @@ export async function POST(req: Request) {
   if (rateLimited(req, "signup", 6)) return tooMany();
 
   const body = await readJson(req);
+  const profile = validateSignupProfile(body);
+  if (!profile.ok) return json({ error: "invalid", message: profile.message }, 400);
+
   const username = normalizeUsername(body.username);
   const password = typeof body.password === "string" ? body.password : "";
   const email = typeof body.email === "string" ? body.email.trim() : "";
@@ -36,7 +40,7 @@ export async function POST(req: Request) {
   }
 
   const created = await callApp<{ custom_token: string }>("/auth/signup-approved", {
-    body: { username, password, email: email || null },
+    body: { username, password, email: email || null, ...profile.data },
     bridge: true,
   });
 

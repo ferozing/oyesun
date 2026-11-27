@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Privacy" };
 export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy">
-      <p>Last updated 6 October 2026</p>
+      <p>Last updated 27 November 2026</p>
       <p>
         Oyesun is made by Fimo Labs. Privacy is the point of Oyesun, so this page is short and plain. It covers this
         website and the Oyesun waitlist.
@@ -44,10 +44,11 @@ export default function PrivacyPage() {
         your spot and anything linked to it within 30 days.
       </p>
 
-      <h2>When Oyesun opens</h2>
+      <h2>When you create an account</h2>
       <p>
-        Before you start chatting, we will show you exactly how conversations are stored and protected, and how to
-        export or delete them. We will update this page then.
+        We keep your 18+ confirmation and the date you gave it to record your eligibility for the beta.
+        If you choose to share your gender, we keep your selection to understand who is joining.
+        The <a href="/app/privacy">app privacy policy</a> explains how to export or delete account data.
       </p>
 
       <h2>Not a crisis service</h2>
