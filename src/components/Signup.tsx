@@ -5,7 +5,7 @@ import { useId, useState } from "react";
 import { signupGenders } from "@/lib/signupProfile";
 import { api, type Spot } from "./api";
 import { enterApp } from "./handoff";
-import { LineStatus, fmt, srOnly } from "./Line";
+import { LineStatus, srOnly } from "./Line";
 import { cleanName } from "./Waitlist";
 
 type CheckResult = {
@@ -16,15 +16,13 @@ type CheckResult = {
   total: number;
 };
 
-// Five screens, decided by one call to /api/auth/check. "code" is the separate
-// door for someone a current user invited — nothing to do with the line.
 type Step =
   | { phase: "ask" }
-  | { phase: "new"; username: string; total: number }
+  | { phase: "new"; username: string }
   | { phase: "waiting"; spot: Spot }
   | { phase: "approved"; username: string }
   | { phase: "claimed"; username: string }
-  | { phase: "code" };
+  | { phase: "code"; username: string };
 
 const input =
   "w-full rounded-[16px] border-[1.5px] border-line bg-ember px-4 py-3.5 text-[16px] text-cream outline-none placeholder:text-faint";
@@ -50,7 +48,7 @@ export function Signup({ initialUsername = "" }: { initialUsername?: string }) {
     const d = res.data;
     if (d.state === "approved") setStep({ phase: "approved", username: d.username });
     else if (d.state === "claimed") setStep({ phase: "claimed", username: d.username });
-    else if (d.state === "new") setStep({ phase: "new", username: d.username, total: d.total });
+    else if (d.state === "new") setStep({ phase: "new", username: d.username });
     else {
       setStep({
         phase: "waiting",
@@ -68,6 +66,11 @@ export function Signup({ initialUsername = "" }: { initialUsername?: string }) {
     await check(username);
   };
 
+  const openInviteSignup = (username: string) => {
+    setError(null);
+    setStep({ phase: "code", username });
+  };
+
   return (
     <div className="flex flex-col gap-5">
       {step.phase === "ask" ? (
@@ -77,7 +80,7 @@ export function Signup({ initialUsername = "" }: { initialUsername?: string }) {
           busy={busy}
           error={error}
           onSubmit={() => check(name)}
-          onCode={() => { setError(null); setStep({ phase: "code" }); }}
+          onCode={() => openInviteSignup(cleanName(name))}
         />
       ) : null}
 
@@ -86,18 +89,25 @@ export function Signup({ initialUsername = "" }: { initialUsername?: string }) {
           <span className="text-[13px] font-extrabold uppercase tracking-[0.06em] text-brown">@{step.username}</span>
           <span className={h1}>Not in line yet.</span>
           <p className="text-[15px] leading-[1.55] text-brown">
-            Nobody has taken @{step.username}. Reserve it and you join {fmt(step.total)} others in the line — just a
-            username, nothing else.
+            Reserve this username to join the waitlist. Once approved, you can create your account.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={() => reserve(step.username)} disabled={busy} className="cursor-pointer rounded-full border-0 bg-night px-6 py-3.5 text-[16px] font-extrabold text-sun disabled:opacity-70">
               {busy ? "Reserving..." : "Reserve @" + step.username}
             </button>
-            <button type="button" onClick={() => { setError(null); setStep({ phase: "ask" }); }} className="cursor-pointer border-0 bg-transparent p-2 text-[15px] font-bold text-brown underline">
+            <button type="button" onClick={() => { setError(null); setStep({ phase: "ask" }); }} disabled={busy} className="cursor-pointer border-0 bg-transparent p-2 text-[15px] font-bold text-brown underline disabled:opacity-70">
               Different username
             </button>
           </div>
           {error ? <Err>{error}</Err> : null}
+          <div className="mt-1 flex flex-col gap-2 border-t border-warm pt-3">
+            <p className="text-[14px] leading-[1.55] text-brown">
+              When you create your account, you&apos;ll set a password and confirm you&apos;re 18 or older. Sharing your gender is optional.
+            </p>
+            <button type="button" onClick={() => openInviteSignup(step.username)} disabled={busy} className="cursor-pointer self-start border-0 bg-transparent py-1 text-[15px] font-bold text-brown underline disabled:opacity-70">
+              I have an invite code
+            </button>
+          </div>
         </Card>
       ) : null}
 
@@ -111,9 +121,11 @@ export function Signup({ initialUsername = "" }: { initialUsername?: string }) {
             />
           </Card>
           <p className="px-2 text-[15px] leading-[1.55] text-muted">
-            We open a few more spots every single day. When it&apos;s your turn, come back here and type your
-            username — this page becomes your password screen. That&apos;s the whole thing.
+            When your spot is approved, come back with this username to create your account. You&apos;ll set a password and confirm you&apos;re 18 or older. Sharing your gender is optional.
           </p>
+          <button type="button" onClick={() => openInviteSignup(step.spot.username)} className="cursor-pointer self-start border-0 bg-transparent px-2 text-[15px] font-bold text-sun underline">
+            I have an invite code
+          </button>
           <Back onClick={() => { setError(null); setStep({ phase: "ask" }); }} />
         </>
       ) : null}
@@ -131,7 +143,12 @@ export function Signup({ initialUsername = "" }: { initialUsername?: string }) {
         </Card>
       ) : null}
 
-      {step.phase === "code" ? <WithCode onBack={() => { setError(null); setStep({ phase: "ask" }); }} /> : null}
+      {step.phase === "code" ? (
+        <WithCode
+          initialUsername={step.username}
+          onBack={() => { setError(null); setStep({ phase: "ask" }); }}
+        />
+      ) : null}
 
       {step.phase === "ask" || step.phase === "code" ? (
         <p className="px-2 text-[15px] text-faint">
@@ -155,7 +172,7 @@ function Ask({ name, setName, busy, error, onSubmit, onCode }: {
       <div className="flex flex-col gap-3">
         <h1 className={h1}>Oye, sun.</h1>
         <p className="text-[17px] leading-[1.55] text-muted">
-          Type the username you reserved. We&apos;ll tell you where you stand.
+          Enter a username to reserve it or check your waitlist status.
         </p>
       </div>
       <form
@@ -182,8 +199,8 @@ function Ask({ name, setName, busy, error, onSubmit, onCode }: {
         </button>
       </form>
       {error ? <p role="alert" className="px-4 text-[14px] font-semibold text-orange">{error}</p> : null}
-      <button type="button" onClick={onCode} className="cursor-pointer self-start border-0 bg-transparent p-2 text-[15px] text-cream">
-        Got an invite code? <span className="font-extrabold underline">Use it instead</span>
+      <button type="button" onClick={onCode} disabled={busy} className="cursor-pointer self-start border-0 bg-transparent p-2 text-[15px] text-cream disabled:opacity-70">
+        Got an invite code? <span className="font-extrabold underline">Create an account</span>
       </button>
     </>
   );
@@ -222,7 +239,7 @@ function Approved({ username }: { username: string }) {
     <Card>
       <span className="text-[13px] font-extrabold uppercase tracking-[0.06em] text-brown">@{username} · you&apos;re through</span>
       <span className={h1}>You&apos;re in.</span>
-      <p className="text-[15px] leading-[1.55] text-brown">Set a password and confirm your age to finish signing up.</p>
+      <p className="text-[15px] leading-[1.55] text-brown">Set a password and confirm you&apos;re 18 or older to finish signup.</p>
 
       <form onSubmit={submit} className="mt-1 flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
@@ -265,7 +282,7 @@ function Approved({ username }: { username: string }) {
         </div>
 
         <button type="submit" disabled={busy} className={`mt-1 self-start ${primary}`}>
-          {busy ? "Setting up..." : "Open Oyesun"}
+          {busy ? "Setting up..." : "Create account"}
         </button>
         {error ? <Err>{error}</Err> : null}
       </form>
@@ -275,8 +292,8 @@ function Approved({ username }: { username: string }) {
 
 // Someone a current user invited. This path doesn't touch the waitlist at all:
 // the code is checked and spent by the app, exactly as it always was.
-function WithCode({ onBack }: { onBack: () => void }) {
-  const [username, setUsername] = useState("");
+function WithCode({ initialUsername, onBack }: { initialUsername: string; onBack: () => void }) {
+  const [username, setUsername] = useState(initialUsername);
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
@@ -311,8 +328,8 @@ function WithCode({ onBack }: { onBack: () => void }) {
   return (
     <>
       <div className="flex flex-col gap-3">
-        <h1 className={h1}>Someone let you in.</h1>
-        <p className="text-[17px] leading-[1.55] text-muted">Use your code and skip the line entirely.</p>
+        <h1 className={h1}>Create your account.</h1>
+        <p className="text-[17px] leading-[1.55] text-muted">Your invite code lets you sign up today.</p>
       </div>
       <form onSubmit={submit} className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
@@ -333,7 +350,7 @@ function WithCode({ onBack }: { onBack: () => void }) {
           <input id="code-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(null); }} placeholder="only used to reset a lost password" autoComplete="email" className={input} />
         </div>
         <button type="submit" disabled={busy} className={`mt-1 self-start ${primary}`}>
-          {busy ? "Setting up..." : "Open Oyesun"}
+          {busy ? "Setting up..." : "Create account"}
         </button>
         {error ? <p role="alert" className="px-1 text-[14px] font-semibold text-orange">{error}</p> : null}
       </form>

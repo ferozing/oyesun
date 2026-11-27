@@ -126,7 +126,7 @@ export function LineStatus({ spot, onSpot }: { spot: Spot; onSpot: (s: Spot) => 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] bg-night px-[18px] py-4 text-cream">
           <div className="flex flex-[1_1_220px] flex-col gap-1">
             <span className="font-display text-[22px] font-extrabold tracking-[-0.02em]">Want to jump the line?</span>
-            <span className="text-[14px] text-muted">Play Read the Room. 3 rounds. Right +5, close +2, wrong −2. Up to 10 spots a day.</span>
+            <span className="text-[14px] text-muted">Play three rounds. Move up 5 spots for a right answer and 2 for a close one. A wrong answer moves you back 2. Jump up to 10 spots a day.</span>
           </div>
           <button type="button" onClick={startGame} disabled={game.phase === "loading"} className="cursor-pointer rounded-full border-0 bg-sun px-5 py-[13px] text-[15px] font-extrabold text-night disabled:opacity-70">
             {game.phase === "loading" ? "Loading..." : "Play"}
@@ -214,7 +214,7 @@ function Round({ game, onAnswer, onNext }: {
               : r.verdict === "close"
                 ? `Close. They felt ${q.opts[r.answer].toLowerCase()}. +${r.gained}`
                 : r.gained < 0
-                  ? `Not quite. They felt ${q.opts[r.answer].toLowerCase()}. ${r.gained} spots`
+                  ? `Not quite. They felt ${q.opts[r.answer].toLowerCase()}. You moved back ${Math.abs(r.gained)} spots.`
                   : `Not quite. They felt ${q.opts[r.answer].toLowerCase()}.`}
           </span>
           <button type="button" onClick={onNext} className="cursor-pointer rounded-full border-0 bg-sun px-[18px] py-[11px] text-[14px] font-extrabold text-night">

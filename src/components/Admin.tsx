@@ -150,14 +150,13 @@ export function Admin() {
             <div className="flex flex-col gap-3 rounded-[22px] border border-sun bg-ember p-5">
               <span className="font-display text-[26px] font-extrabold tracking-[-0.03em]">Just approved</span>
               <p className="text-[14px] leading-[1.55] text-muted">
-                Everyone here can sign up right now — they don&apos;t need to be told first. Message the ones who left
-                a contact, then forget those contacts.
+                Everyone here can sign up now. If someone left a contact, you can message them and clear it afterward.
               </p>
               <ul className="flex flex-col gap-1.5">
                 {approved.map((r) => (
                   <li key={r.username} className="flex flex-wrap items-center gap-2 border-b border-dusk py-2 text-[15px] last:border-0">
                     <span className="font-bold text-cream">@{r.username}</span>
-                    <span className="ml-auto font-mono text-[13px] text-sun">{r.contact ?? "—"}</span>
+                    <span className="ml-auto font-mono text-[13px] text-sun">{r.contact ?? "No contact"}</span>
                   </li>
                 ))}
               </ul>
@@ -167,7 +166,7 @@ export function Admin() {
                 disabled={busy || !approved.some((r) => r.contact)}
                 className="cursor-pointer self-start rounded-full border-[1.5px] border-line bg-transparent px-4 py-2.5 text-[14px] font-bold text-muted disabled:opacity-60"
               >
-                I&apos;ve messaged them — forget the contacts
+                Clear contacts after messaging
               </button>
             </div>
           ) : null}
@@ -175,16 +174,15 @@ export function Admin() {
           <div className={card}>
             <span className="font-display text-[26px] font-extrabold tracking-[-0.03em]">Approved, not signed up</span>
             <p className="text-[14px] leading-[1.55] text-muted">
-              Waiting for them to come back and set a password. Nothing is wrong — most people here never gave us a
-              way to be told.
+              These people can finish signup when they come back. Contact details appear here if they shared them.
             </p>
             {queue.pending.length ? (
               <ul className="flex flex-col gap-1.5">
                 {queue.pending.map((r) => (
                   <li key={r.username} className="flex flex-wrap items-center gap-2 border-b border-dusk py-2 text-[15px] last:border-0">
                     <span className="font-bold text-cream">@{r.username}</span>
-                    <span className="text-[13px] text-faint">{r.approvedAt ? new Date(r.approvedAt).toLocaleDateString("en-IN") : "—"}</span>
-                    <span className="ml-auto font-mono text-[13px] text-sun">{r.contact ?? "—"}</span>
+                    <span className="text-[13px] text-faint">{r.approvedAt ? new Date(r.approvedAt).toLocaleDateString("en-IN") : "Date unavailable"}</span>
+                    <span className="ml-auto font-mono text-[13px] text-sun">{r.contact ?? "No contact"}</span>
                   </li>
                 ))}
               </ul>

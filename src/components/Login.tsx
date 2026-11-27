@@ -84,10 +84,8 @@ export function Login({ initialUsername = "" }: { initialUsername?: string }) {
         // Password reset lives in the app, which is where the reset form and
         // the email sending already are. No point rebuilding it here.
         <p className="rounded-[18px] border border-line bg-ember p-4 text-[14px] leading-[1.6] text-muted">
-          A reset link can only go to a recovery email, and only if you added one. If you did,{" "}
-          <a href="/app" className="font-bold text-sun">open Oyesun</a> and use &quot;Forgot password&quot; on the login
-          screen. If you didn&apos;t add one, there&apos;s genuinely no way back into that account — we hold nothing
-          else about you. Reserving a new username is the only option, and we&apos;re sorry.
+          If you added a recovery email, <a href="/app" className="font-bold text-sun">open Oyesun</a> and choose
+          &quot;Forgot password&quot; to get a reset link. Without a recovery email, you can start again with a new username.
         </p>
       ) : (
         <button type="button" onClick={() => setForgot(true)} className="cursor-pointer self-start border-0 bg-transparent p-2 text-[15px] font-bold text-faint underline">

@@ -1,7 +1,7 @@
 export const signupGenders = {
   woman: "Woman",
   man: "Man",
-  non_binary: "Non-binary",
+  non_binary: "Nonbinary",
   another_identity: "Another identity",
   prefer_not_to_say: "Prefer not to say",
 } as const;
