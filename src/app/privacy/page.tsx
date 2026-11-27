@@ -40,7 +40,7 @@ export default function PrivacyPage() {
 
       <h2>Deleting your spot</h2>
       <p>
-        Write to <a href="mailto:pm.ferozmd@gmail.com">pm.ferozmd@gmail.com</a> with your username and we will delete
+        Write to <a href="mailto:feroz@fimolabs.com">feroz@fimolabs.com</a> with your username and we will delete
         your spot and anything linked to it within 30 days.
       </p>
 
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
 
       <h2>Contact</h2>
       <p>
-        Fimo Labs, 7G, Velachery, Chennai 600042. Email <a href="mailto:pm.ferozmd@gmail.com">pm.ferozmd@gmail.com</a>.
+        fimolabs, email <a href="mailto:feroz@fimolabs.com">feroz@fimolabs.com</a>
       </p>
     </LegalPage>
   );

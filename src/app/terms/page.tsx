@@ -41,7 +41,7 @@ export default function TermsPage() {
       <p>These terms are governed by the laws of India, and courts in Chennai have jurisdiction.</p>
 
       <h2>Contact</h2>
-      <p>Fimo Labs, 7G, Velachery, Chennai 600042. Email <a href="mailto:pm.ferozmd@gmail.com">pm.ferozmd@gmail.com</a>.</p>
+      <p>fimolabs, email <a href="mailto:feroz@fimolabs.com">feroz@fimolabs.com</a></p>
     </LegalPage>
   );
 }
